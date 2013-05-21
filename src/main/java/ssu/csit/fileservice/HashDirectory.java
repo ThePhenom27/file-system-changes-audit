@@ -48,7 +48,7 @@ public class HashDirectory {
         List<HashedFile> files = fileService.listFiles(directory);
         if (files != null) {
             for (HashedFile file: files) {
-                String state = "No changes"; //Default file state
+                String state = "";
                 String path = file.getPath();
                 String hash = file.getHash();
                 if (currentDirState.containsKey(path)) {
@@ -59,6 +59,9 @@ public class HashDirectory {
                         fileService.update(file);
                     }
                     currentDirState.remove(path);
+                    if (newHash.equals(hash)) {
+                    	continue;
+                    }
                 } else { //Directory doesn't contains file - it's deleted
                     state = "Deleted";
                     fileService.delete(file);
@@ -78,13 +81,17 @@ public class HashDirectory {
             vector.add("New file");
             changes.add(vector);
             File file = new File(path);
-            fileService.save(new HashedFile(file.getPath(), entry.getValue(), directory.getPath()));
+            fileService.save(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
         }
         
         return changes;
     }
 
     private Map<String, String> hashFiles() throws IOException {
+    	return hashFiles(directory);
+    }
+    
+    private Map<String, String> hashFiles(File directory) throws IOException {
         File[] files = directory.listFiles();
         Map<String, String> hashes = new LinkedHashMap<String, String>();
         for (File file: files) {
@@ -92,11 +99,9 @@ public class HashDirectory {
                 continue;
             }
             if (file.isDirectory()) {
-                hashes.putAll(new HashDirectory(file).hashFiles());
+                hashes.putAll(hashFiles(file));
             } else {
-                String path = file.getPath();
-                String hash = md5(file);
-                hashes.put(path, hash);
+                hashes.put(relativePath(file), md5(file));
             }
         }
         return hashes;
@@ -115,5 +120,9 @@ public class HashDirectory {
             }
         }
         return DigestUtils.md5Hex(data);
+    }
+    
+    public String relativePath(File file) {
+    	return file.getPath().replace(String.format("%s%s", directory.getPath(), "/"), "");
     }
 }

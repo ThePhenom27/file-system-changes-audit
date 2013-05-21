@@ -1,7 +1,9 @@
 package ssu.csit.fileservice.core;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -14,9 +16,15 @@ import javax.persistence.Table;
 @Table(name = "HASHES")
 public class HashedFile {
 
+	@Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ID", nullable = false)
     private Integer id;
+	@Column(name = "PATH", nullable = false, length = 256)
     private String path;
+	@Column(name = "HASH", nullable = false, length = 128)
     private String hash = "";
+	@Column(name = "DIRECTORY", nullable = false, length = 256)
     private String directory;
 
     public HashedFile() {}
@@ -27,8 +35,6 @@ public class HashedFile {
         this.directory = directory;
     }
 
-    @Id
-    @GeneratedValue
     public Integer getId() {
         return id;
     }
@@ -61,4 +67,20 @@ public class HashedFile {
         this.directory = directory;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+    	if (this == obj) {
+    		return true;
+    	}
+    	if (obj instanceof HashedFile) {
+    		HashedFile other = (HashedFile) obj;
+    		return this.path.equals(other.path);
+    	}
+    	return false;
+    }
+    
+    @Override
+    public int hashCode() {
+    	return hash.hashCode();
+    }
 }
