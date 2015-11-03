@@ -2,11 +2,9 @@ package ssu.csit.fileservice;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -93,6 +91,10 @@ public class HashDirectory {
     
     private Map<String, String> hashFiles(File directory) throws IOException {
         File[] files = directory.listFiles();
+        if (files == null) {
+            System.out.println("directory is empty");
+            return Collections.emptyMap();
+        }
         Map<String, String> hashes = new LinkedHashMap<String, String>();
         for (File file: files) {
             if (file.isHidden()) {
@@ -109,11 +111,14 @@ public class HashDirectory {
     
     private static String md5(File file) throws IOException {
         FileInputStream input = null;
-        byte[] data;
+        byte[] data = new byte[0];
         try {
             data = new byte[100000];
             input = new FileInputStream(file);
             input.read(data);
+        } catch (FileNotFoundException e) {
+            System.out.println("error: " + e.getMessage());
+            return null;
         } finally {
             if (input != null) {
                 input.close();

@@ -9,6 +9,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.GroupLayout;
@@ -60,7 +61,7 @@ public class Application extends JDialog {
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         {
-            lblEnterPathTo = new JLabel("Enter path to the directory you want to get changes for:");
+            lblEnterPathTo = new JLabel("Enter path:");
         }
         {
             pathField = new JTextField();
@@ -117,7 +118,7 @@ public class Application extends JDialog {
         okButton.setActionCommand("OK");
         okButton.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent event) {
                 String path = pathField.getText();
                 if (path.equals("")) {
                     JOptionPane.showMessageDialog(Application.this, "Please enter a path.", "",
@@ -129,9 +130,14 @@ public class Application extends JDialog {
                 try {
                     frame = new TableFrame(new HashDirectory(file).getFileSystemChanges());
                     frame.setVisible(true);
-                } catch (IOException e1) {
+                } catch (FileNotFoundException e) {
                     JOptionPane.showMessageDialog(Application.this, String.format("No such directory: '%s'", file),
                             "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(Application.this, e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
                 }
             }
 
