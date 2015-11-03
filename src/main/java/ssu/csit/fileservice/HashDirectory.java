@@ -103,7 +103,8 @@ public class HashDirectory {
             if (file.isDirectory()) {
                 hashes.putAll(hashFiles(file));
             } else {
-                hashes.put(relativePath(file), md5(file));
+                String md5 = md5(file);
+                hashes.put(relativePath(file), md5 == null? "access denied" : md5);
             }
         }
         return hashes;
