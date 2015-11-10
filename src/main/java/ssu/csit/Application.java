@@ -74,6 +74,9 @@ public class Application extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setFileSelectionMode(DIRECTORIES_ONLY);
+                if (pathField.getText() != null && !"".equals(pathField.getText())) {
+                    fileChooser.setCurrentDirectory(new File(pathField.getText()));
+                }
                 int chooseState = fileChooser.showOpenDialog(Application.this);
 
                 if (chooseState == APPROVE_OPTION) {
@@ -121,15 +124,21 @@ public class Application extends JDialog {
             public void actionPerformed(ActionEvent event) {
                 String path = pathField.getText();
                 if (path.equals("")) {
-                    JOptionPane.showMessageDialog(Application.this, "Please enter a path.", "",
+                    JOptionPane.showMessageDialog(Application.this, "Please enter a path", "",
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 File file = new File(path);
                 TableFrame frame;
                 try {
-                    frame = new TableFrame(new HashDirectory(file).getFileSystemChanges());
+                    frame = new TableFrame();
                     frame.setVisible(true);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    new HashDirectory(file).getFileSystemChanges(frame);
                 } catch (FileNotFoundException e) {
                     JOptionPane.showMessageDialog(Application.this, String.format("No such directory: '%s'", file),
                             "Error", JOptionPane.ERROR_MESSAGE);

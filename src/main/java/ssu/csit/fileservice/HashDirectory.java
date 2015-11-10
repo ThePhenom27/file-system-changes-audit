@@ -10,6 +10,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import ssu.csit.fileservice.core.FileService;
 import ssu.csit.fileservice.core.HashedFile;
+import ssu.csit.gui.TableFrame;
 
 /**
  * Represents a file directory, provides methods for getting file changes in it.
@@ -38,11 +39,11 @@ public class HashDirectory {
      * @return the result table
      * @throws IOException if an I/O error occurs.
      */
-    public Vector<Vector<String>> getFileSystemChanges() throws IOException {
+    public void getFileSystemChanges(TableFrame frame) throws IOException {
         
         Map<String, String> currentDirState = hashFiles();
         FileService fileService = FileService.get();
-        Vector<Vector<String>> changes = new Vector<Vector<String>>();
+        List<HashedFile> toStore = new ArrayList<HashedFile>();
         List<HashedFile> files = fileService.listFiles(directory);
         if (files != null) {
             for (HashedFile file: files) {
@@ -65,24 +66,22 @@ public class HashDirectory {
                     fileService.delete(file);
                 }
                 
-                Vector<String> vector = new Vector<String>();
-                vector.add(path);
-                vector.add(state);
-                changes.add(vector);
+                frame.addRow(path, state);
+                System.out.println(path + "     " + state);
             }
         }
         
         for (Map.Entry<String, String> entry: currentDirState.entrySet()) { //Remaining files in the directory are new files
-            Vector<String> vector = new Vector<String>();
             String path = entry.getKey();
-            vector.add(path);
-            vector.add("New file");
-            changes.add(vector);
+            String state = currentDirState.get(path).equals("access denied")? "access denied": "New file";
+            System.out.println(path + "     " + state);
+            frame.addRow(path, state);
             File file = new File(path);
-            fileService.save(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
+            toStore.add(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
         }
+
+        fileService.save(toStore);
         
-        return changes;
     }
 
     private Map<String, String> hashFiles() throws IOException {

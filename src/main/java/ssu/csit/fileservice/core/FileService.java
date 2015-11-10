@@ -52,6 +52,15 @@ public class FileService {
 		session.save(file);
 		transaction.commit();
     }
+
+    public void save(List<HashedFile> toStore) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        for (HashedFile hashedFile : toStore) {
+            session.save(hashedFile);
+        }
+        transaction.commit();
+    }
     
     /**
      * Updates the persistent <code>HashedFile</code> object in the storage.
@@ -97,5 +106,5 @@ public class FileService {
             return Collections.emptyList();
         }
     }
-    
+
 }
