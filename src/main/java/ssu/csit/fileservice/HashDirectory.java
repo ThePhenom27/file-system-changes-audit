@@ -43,7 +43,7 @@ public class HashDirectory {
         
         Map<String, String> currentDirState = hashFiles();
         FileService fileService = FileService.get();
-        List<HashedFile> toStore = new ArrayList<HashedFile>();
+//        List<HashedFile> toStore = new ArrayList<HashedFile>();
         List<HashedFile> files = fileService.listFiles(directory);
         if (files != null) {
             for (HashedFile file: files) {
@@ -59,7 +59,11 @@ public class HashDirectory {
                     }
                     currentDirState.remove(path);
                     if (newHash.equals(hash)) {
-                    	continue;
+                        if ("access denied".equals(hash)) {
+                            state = "access denied";
+                        } else {
+                            continue;
+                        }
                     }
                 } else { //Directory doesn't contains file - it's deleted
                     state = "Deleted";
@@ -77,11 +81,32 @@ public class HashDirectory {
             System.out.println(path + "     " + state);
             frame.addRow(path, state);
             File file = new File(path);
+//            toStore.add(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
+        }
+
+//        fileService.save(toStore);
+        
+    }
+
+    public void markFilesNew(TableFrame frame) throws IOException {
+
+        Map<String, String> currentDirState = hashFiles();
+        FileService fileService = FileService.get();
+        List<HashedFile> toStore = new ArrayList<HashedFile>();
+
+        for (Map.Entry<String, String> entry: currentDirState.entrySet()) {
+            String path = entry.getKey();
+            String state = currentDirState.get(path).equals("access denied")? "access denied": "New file";
+            System.out.println(path + "     " + state);
+            if (!"New file".equals(state)) {
+                frame.addRow(path, state);
+            }
+            File file = new File(path);
             toStore.add(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
         }
 
         fileService.save(toStore);
-        
+
     }
 
     private Map<String, String> hashFiles() throws IOException {
@@ -91,7 +116,7 @@ public class HashDirectory {
     private Map<String, String> hashFiles(File directory) throws IOException {
         File[] files = directory.listFiles();
         if (files == null) {
-            System.out.println("directory is empty");
+//            System.out.println("directory is empty");
             return Collections.emptyMap();
         }
         Map<String, String> hashes = new LinkedHashMap<String, String>();

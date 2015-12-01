@@ -33,6 +33,8 @@ public class Application extends JDialog {
     private final JPanel contentPanel = new JPanel();
     private JTextField pathField;
     private JLabel lblEnterPathTo;
+    JButton okButton = new JButton("Check");
+    JButton createButton = new JButton("Create");
 
     /**
      * Launch the application.
@@ -117,7 +119,7 @@ public class Application extends JDialog {
         buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
 
-        JButton okButton = new JButton("OK");
+
         okButton.setActionCommand("OK");
         okButton.addActionListener(new ActionListener() {
 
@@ -153,6 +155,35 @@ public class Application extends JDialog {
         });
         buttonPane.add(okButton);
         getRootPane().setDefaultButton(okButton);
+
+        createButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent event) {
+                String path = pathField.getText();
+                if (path.equals("")) {
+                    JOptionPane.showMessageDialog(Application.this, "Please enter a path", "",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                File file = new File(path);
+                TableFrame frame;
+                try {
+                    frame = new TableFrame();
+                    frame.setVisible(true);
+                    new HashDirectory(file).markFilesNew(frame);
+                } catch (FileNotFoundException e) {
+                    JOptionPane.showMessageDialog(Application.this, String.format("No such directory: '%s'", file),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(Application.this, e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        buttonPane.add(createButton);
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.setActionCommand("Cancel");
