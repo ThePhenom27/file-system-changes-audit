@@ -55,23 +55,26 @@ public class HashDirectory {
                     if (!newHash.equals(hash)) { //If hashes aren't equal file is modified
                         state = "Modified";
                         file.setHash(newHash);
-                        fileService.update(file);
+//                        fileService.update(file);
                     }
                     currentDirState.remove(path);
                     if (newHash.equals(hash)) {
                         if ("access denied".equals(hash)) {
                             state = "access denied";
                         } else {
-                            continue;
+                            state = file.getState();
                         }
                     }
                 } else { //Directory doesn't contains file - it's deleted
                     state = "Deleted";
-                    fileService.delete(file);
+                    //fileService.delete(file);
                 }
                 
                 frame.addRow(path, state);
                 System.out.println(path + "     " + state);
+
+                file.setState(state);
+                fileService.update(file);
             }
         }
         
@@ -102,7 +105,7 @@ public class HashDirectory {
                 frame.addRow(path, state);
             }
             File file = new File(path);
-            toStore.add(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
+            toStore.add(new HashedFile(relativePath(file), entry.getValue(), directory.getPath(), "New file"));
         }
 
         fileService.save(toStore);

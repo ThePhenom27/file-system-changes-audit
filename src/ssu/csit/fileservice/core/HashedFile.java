@@ -26,6 +26,8 @@ public class HashedFile {
     private String hash = "";
 	@Column(name = "DIRECTORY", nullable = false, length = 256)
     private String directory;
+    @Column(name="STATE", length = 64)
+    private String state;
 
     public HashedFile() {}
     
@@ -33,6 +35,13 @@ public class HashedFile {
         this.path = path;
         this.hash = hash;
         this.directory = directory;
+    }
+
+    public HashedFile(String path, String hash, String directory, String state) {
+        this.path = path;
+        this.hash = hash;
+        this.directory = directory;
+        this.state = state;
     }
 
     public Integer getId() {
@@ -65,6 +74,14 @@ public class HashedFile {
 
     public void setDirectory(String directory) {
         this.directory = directory;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     @Override
