@@ -57,33 +57,37 @@ public class HashDirectory {
                         file.setHash(newHash);
 //                        fileService.update(file);
                     }
-                    currentDirState.remove(path);
+
                     if (newHash.equals(hash)) {
                         if ("access denied".equals(hash)) {
                             state = "access denied";
                         } else {
-                            state = file.getState();
+                            currentDirState.remove(path);
+                            continue;
+                           // state = file.getState();
                         }
                     }
+
+                    currentDirState.remove(path);
                 } else { //Directory doesn't contains file - it's deleted
                     state = "Deleted";
                     //fileService.delete(file);
                 }
                 
                 frame.addRow(path, state);
-                System.out.println(path + "     " + state);
+//                System.out.println(path + "     " + state);
 
                 file.setState(state);
-                fileService.update(file);
+//                fileService.update(file);
             }
         }
         
         for (Map.Entry<String, String> entry: currentDirState.entrySet()) { //Remaining files in the directory are new files
             String path = entry.getKey();
             String state = currentDirState.get(path).equals("access denied")? "access denied": "New file";
-            System.out.println(path + "     " + state);
+//            System.out.println(path + "     " + state);
             frame.addRow(path, state);
-            File file = new File(path);
+//            File file = new File(path);
 //            toStore.add(new HashedFile(relativePath(file), entry.getValue(), directory.getPath()));
         }
 
@@ -145,7 +149,7 @@ public class HashDirectory {
             input = new FileInputStream(file);
             input.read(data);
         } catch (FileNotFoundException e) {
-            System.out.println("error: " + e.getMessage());
+//            System.out.println("error: " + e.getMessage());
             return null;
         } finally {
             if (input != null) {
